@@ -36,7 +36,7 @@ void writer(boost::asio::serial_port& port, protocol::message::offboard_attitude
   while(true) {
     write_msg_mutex.lock();
     std::uint16_t len = encoder.encode(msg, &buffer);
-    printf("%f %f %f %f\n", msg.roll, msg.pitch, msg.yaw, msg.throttle);   // DEBUG
+    //printf("%f %f %f %f\n", msg.roll, msg.pitch, msg.yaw, msg.throttle);   // DEBUG
     write_msg_mutex.unlock();
 
     boost::asio::write(port, boost::asio::buffer(buffer.data(), len));

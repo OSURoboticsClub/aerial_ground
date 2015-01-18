@@ -1,6 +1,9 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <cstdio>
 #define GLSL(src) "#version 150 core\n" #src
 
@@ -22,12 +25,39 @@
 #include "joystick.hpp"
 
 float vertices[] = {
+  // Axes
   0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
   1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
   0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
   0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
   0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-  0.1f, 0.1f, 1.0f, 0.0f, 0.0f, 1.0f,
+  0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+
+  // Wireframe box
+  0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+  0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+  0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+  0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+  0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+  0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+  0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+  0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+  0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+  0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+  0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+  0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+  0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+  0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+  0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+  0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+  0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+  0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+  0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+  0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+  0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+  0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+  0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+  0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
 };
 
 int main(int argc, char **argv) {
@@ -97,15 +127,13 @@ int main(int argc, char **argv) {
 
     out vec3 Color;
 
+    uniform mat4 proj;
+
     void main() {
       Color = color;
-      gl_Position = vec4(position, 1.0);
+      gl_Position = view * proj * vec4(position, 1.0);
     }
   );
-  
-  GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-  glShaderSource(vertexShader, 1, &vertexSource, NULL);
-  glCompileShader(vertexShader);
 
   // Create and compile the fragment shader
   const char* fragmentSource = GLSL(
@@ -117,6 +145,9 @@ int main(int argc, char **argv) {
     }
   );
 
+  GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+  glShaderSource(vertexShader, 1, &vertexSource, NULL);
+  glCompileShader(vertexShader);
 
   GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
   glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
@@ -130,6 +161,9 @@ int main(int argc, char **argv) {
   glLinkProgram(shaderProgram);
   glUseProgram(shaderProgram);
 
+  GLint uniView = glGetUniformLocation(shaderProgram, "view");
+  GLint uniProj = glGetUniformLocation(shaderProgram, "proj");
+
   // Specify the layout of the vertex data
   GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
   glEnableVertexAttribArray(posAttrib);
@@ -142,11 +176,22 @@ int main(int argc, char **argv) {
   while(!glfwWindowShouldClose(window)) {
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
+    // Set view
+    glm::mat4 view = glm::lookAt(
+        glm::vec3(1.2f, 1.2f, 1.2f),   // Camera location
+        glm::vec3(0.0f, 0.0f, 0.0f),   // Object to center on screen
+        glm::vec3(0.0f, 0.0f, 1.0f)    // "Up" axis
+        );
+    glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
+
+    // Add perspective
+    glm::mat4 proj = glm::perspective(45.0f, 800.0f / 600.0f, 1.0f, 10.0f);
+    glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
+
     // Clear the screen to black
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
-    // Draw a triangle from the 3 vertices
-    glDrawArrays(GL_LINES, 0, 6);
+    glDrawArrays(GL_LINES, 0, 30);
 
     glfwSwapBuffers(window);
     glfwPollEvents();
