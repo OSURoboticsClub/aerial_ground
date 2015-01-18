@@ -17,10 +17,16 @@ void handle(const protocol::decoded_message_t<buffer_size>& decoded) {
     }
     case protocol::message::attitude_message_t::ID: {
       auto message = reinterpret_cast<const protocol::message::attitude_message_t&>(decoded.payload);
-      std::cout << "<attitude>: " << std::fixed << std::setprecision(2)
-        << "" << message.dcm[0] << " " << message.dcm[1] << " " << message.dcm[2]
-        << " | " << message.dcm[3] << " " << message.dcm[4] << " " << message.dcm[5]
-        << " | " << message.dcm[6] << " " << message.dcm[7] << " " << message.dcm[8] << std::endl;
+      printf("<attitude>: % .3f % .3f % .3f | % .3f % .3f % .3f | % .3f % .3f % .3f\n", 
+          message.dcm[0],
+          message.dcm[1],
+          message.dcm[2],
+          message.dcm[3],
+          message.dcm[4],
+          message.dcm[5],
+          message.dcm[6],
+          message.dcm[7],
+          message.dcm[8]);
 
       // 1 0 0 -> 0 0 1
       // 0 1 0 -> 1 0 0
