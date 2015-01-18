@@ -131,7 +131,7 @@ int main(int argc, char **argv) {
 
     void main() {
       Color = color;
-      gl_Position = view * proj * vec4(position, 1.0);
+      gl_Position = vec4(position, 1.0);
     }
   );
 
