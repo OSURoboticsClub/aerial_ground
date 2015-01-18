@@ -2,7 +2,7 @@ LD = g++
 CXX = clang++
 CXXFLAGS = -std=c++11 -O2 -Wall
 INCLUDES = -Iinclude/protocol/include
-LDFLAGS = -lboost_system
+LDFLAGS = -lboost_system -lglfw -lGL -lGLEW
 
 : foreach src/*.cpp |> $(CXX) -c $(CXXFLAGS) $(INCLUDES) %f -o %o |> %B.o
 : *.o |> $(LD) %f $(LDFLAGS) -o %o |> main
