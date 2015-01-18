@@ -1,8 +1,8 @@
 #include "joystick.hpp"
 
 void joystick(int js, protocol::message::offboard_attitude_control_message_t& msg, std::mutex& write_msg_mutex) {
-  uint16_t throttle_left = 0;
-  uint16_t throttle_right = 0;
+  float throttle_left = 0;
+  float throttle_right = 0;
 
   struct js_event e;
   while (true) {
@@ -19,7 +19,7 @@ void joystick(int js, protocol::message::offboard_attitude_control_message_t& ms
           msg.pitch = -e.value / 32767.;
           break;
         case 2:
-          throttle_left = -e.value + 0x7fff;
+          throttle_left = (-e.value + 0x7fff) / 65534.;
           msg.throttle = 0.2 * throttle_left + 0.8 * throttle_right;
 
           if(!armed && throttle < 10) {
@@ -31,7 +31,7 @@ void joystick(int js, protocol::message::offboard_attitude_control_message_t& ms
           msg.yaw = e.value / 32767.;
           break;
         case 4:
-          throttle_right = -e.value + 0x7fff;
+          throttle_right = (-e.value + 0x7fff) / 65534.;
           msg.throttle = 0.2 * throttle_left + 0.8 * throttle_right;
           break;
         default:
