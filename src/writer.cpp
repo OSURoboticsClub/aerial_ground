@@ -20,7 +20,8 @@ static void sendArm(boost::asio::serial_port& port) {
     boost::asio::write(port, boost::asio::buffer(buffer.data(), len));
 }
 
-void writer(boost::asio::serial_port& port) {
+void writer(boost::asio::serial_port& port, protocol::message::offboard_attitude_control_message_t& msg, std::mutex& write_msg_mutex) {
+  std::lock_guard<std::mutex> lock(write_msg_mutex);
   protocol::Encoder encoder;
 
   std::array<std::uint8_t, 255> buffer;
@@ -34,12 +35,6 @@ void writer(boost::asio::serial_port& port) {
 
   std::uint8_t seq = 0;
   while(true) {
-    protocol::message::offboard_attitude_control_message_t msg {
-      .roll = 0.0f,
-      .pitch = 0.0f,
-      .yaw = 0.0f,
-      .throttle = 0.20f
-    };
     std::uint16_t len = encoder.encode(msg, &buffer);
 
     boost::asio::write(port, boost::asio::buffer(buffer.data(), len));

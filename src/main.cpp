@@ -19,6 +19,7 @@
 
 #include "reader.hpp"
 #include "writer.hpp"
+#include "joystick.hpp"
 
 float vertices[] = {
   0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
@@ -30,21 +31,31 @@ float vertices[] = {
 };
 
 int main(int argc, char **argv) {
-  if(argc < 2) {
-    std::cerr << "Usage: " << argv[0] << " <tty>" << std::endl;
+  if(argc < 3) {
+    std::cerr << "Usage: " << argv[0] << " <tty> <jspath>" << std::endl;
     return EXIT_FAILURE;
   }
-  
+
+  // Open joystick
+  char *jspath = argv[1];
+  int js_fd = open(jspath, O_RDONLY);
+  if (js_fd == -1) {
+    perror("Error opening joystick");
+    exit(EXIT_FAILURE);
+  }
+
+  // Set up serial port
   boost::asio::io_service io;
   boost::asio::serial_port port(io, argv[1]);
-
   port.set_option(boost::asio::serial_port_base::baud_rate(115200));
-  port.set_option(boost::asio::serial_port::parity(boost::asio::serial_port::parity::none));
-  port.set_option(boost::asio::serial_port::stop_bits(boost::asio::serial_port::stop_bits::one));
-  port.set_option(boost::asio::serial_port::character_size(8));
+
+  // Set up message
+  std::mutex write_msg_mutex;
+  protocol::message::offboard_attitude_control_message_t write_msg;
 
   std::thread r(reader, std::ref(port));
-  std::thread w(writer, std::ref(port));
+  std::thread w(writer, std::ref(port), std::ref(write_msg), std::ref(write_msg_mutex));
+  std::thread j(joystick, js_fd, std::ref(write_msg), std::ref(write_msg_mutex));
 
   glfwInit();
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -149,4 +160,5 @@ int main(int argc, char **argv) {
 
   r.join();
   w.join();
+  j.join();
 }
