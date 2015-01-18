@@ -1,21 +1,22 @@
 #include "joystick.hpp"
 
 void joystick(int js, protocol::message::offboard_attitude_control_message_t& msg, std::mutex& write_msg_mutex) {
-  std::lock_guard<std::mutex> lock(write_msg_mutex);
   uint16_t throttle_left = 0;
   uint16_t throttle_right = 0;
 
   struct js_event e;
   while (true) {
+    printf("joystick\n");
     read(js, &e, sizeof(e));
 
     if (e.type == JS_EVENT_AXIS) {
+      std::lock_guard<std::mutex> lock(write_msg_mutex);
       switch (e.number) {
         case 0:
-          msg.roll = e.value;
+          msg.roll = e.value / 32767.;
           break;
         case 1:
-          msg.pitch = -e.value;
+          msg.pitch = -e.value / 32767.;
           break;
         case 2:
           throttle_left = -e.value + 0x7fff;
@@ -27,7 +28,7 @@ void joystick(int js, protocol::message::offboard_attitude_control_message_t& ms
           }
           break;
         case 3:
-          msg.yaw = e.value;
+          msg.yaw = e.value / 32767.;
           break;
         case 4:
           throttle_right = -e.value + 0x7fff;
@@ -38,6 +39,7 @@ void joystick(int js, protocol::message::offboard_attitude_control_message_t& ms
       }
     }
     else if (e.type == JS_EVENT_BUTTON) {
+      std::lock_guard<std::mutex> lock(write_msg_mutex);
       msg.buttons = ((0 << e.number) & msg.buttons) + (e.value << e.number);
       switch (e.number) {
         case BUTTON_ZERO_THROTTLE:
@@ -73,5 +75,8 @@ void joystick(int js, protocol::message::offboard_attitude_control_message_t& ms
           break;
       }
     }
+
+    std::chrono::milliseconds dura(1);
+    std::this_thread::sleep_for(dura);
   }
 }

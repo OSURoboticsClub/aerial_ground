@@ -37,7 +37,7 @@ int main(int argc, char **argv) {
   }
 
   // Open joystick
-  char *jspath = argv[1];
+  char *jspath = argv[2];
   int js_fd = open(jspath, O_RDONLY);
   if (js_fd == -1) {
     perror("Error opening joystick");
@@ -51,7 +51,14 @@ int main(int argc, char **argv) {
 
   // Set up message
   std::mutex write_msg_mutex;
-  protocol::message::offboard_attitude_control_message_t write_msg;
+  protocol::message::offboard_attitude_control_message_t write_msg = {
+    .roll = 0,
+    .pitch = 0,
+    .yaw = 0,
+    .throttle = 0,
+    .buttons = 0,
+    .mode = 0
+  };
 
   std::thread r(reader, std::ref(port));
   std::thread w(writer, std::ref(port), std::ref(write_msg), std::ref(write_msg_mutex));

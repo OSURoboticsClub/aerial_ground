@@ -21,7 +21,6 @@ static void sendArm(boost::asio::serial_port& port) {
 }
 
 void writer(boost::asio::serial_port& port, protocol::message::offboard_attitude_control_message_t& msg, std::mutex& write_msg_mutex) {
-  std::lock_guard<std::mutex> lock(write_msg_mutex);
   protocol::Encoder encoder;
 
   std::array<std::uint8_t, 255> buffer;
@@ -35,7 +34,10 @@ void writer(boost::asio::serial_port& port, protocol::message::offboard_attitude
 
   std::uint8_t seq = 0;
   while(true) {
+    write_msg_mutex.lock();
     std::uint16_t len = encoder.encode(msg, &buffer);
+    printf("%f %f %f %f\n", msg.roll, msg.pitch, msg.yaw, msg.throttle);   // DEBUG
+    write_msg_mutex.unlock();
 
     boost::asio::write(port, boost::asio::buffer(buffer.data(), len));
 
