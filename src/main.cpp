@@ -77,7 +77,7 @@ int main(int argc, char **argv) {
   // Set up serial port
   boost::asio::io_service io;
   boost::asio::serial_port port(io, argv[1]);
-  port.set_option(boost::asio::serial_port_base::baud_rate(115200));
+  port.set_option(boost::asio::serial_port_base::baud_rate(38400));
 
   // Set up message
   std::mutex write_msg_mutex;

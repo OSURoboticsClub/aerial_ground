@@ -41,7 +41,7 @@ void writer(boost::asio::serial_port& port, protocol::message::offboard_attitude
 
     boost::asio::write(port, boost::asio::buffer(buffer.data(), len));
 
-    std::chrono::milliseconds dura(5);
+    std::chrono::milliseconds dura(10);
     std::this_thread::sleep_for(dura);
   }
 }
