@@ -127,11 +127,12 @@ int main(int argc, char **argv) {
 
     out vec3 Color;
 
+    uniform mat4 view;
     uniform mat4 proj;
 
     void main() {
       Color = color;
-      gl_Position = vec4(position, 1.0);
+      gl_Position = proj * view * vec4(position, 1.0);
     }
   );
 
@@ -164,6 +165,18 @@ int main(int argc, char **argv) {
   GLint uniView = glGetUniformLocation(shaderProgram, "view");
   GLint uniProj = glGetUniformLocation(shaderProgram, "proj");
 
+  // Set view
+  glm::mat4 view = glm::lookAt(
+      glm::vec3(-2.0f, 0.0f, 0.0f),   // Camera location
+      glm::vec3(0.0f, 0.0f, 0.0f),   // Object to center on screen
+      glm::vec3(0.0f, 0.0f, 1.0f)    // "Up" axis
+      );
+  glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
+
+  // Add perspective
+  glm::mat4 proj = glm::perspective(45.0f, 800.0f / 600.0f, 1.0f, 10.0f);
+  glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
+
   // Specify the layout of the vertex data
   GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
   glEnableVertexAttribArray(posAttrib);
@@ -175,18 +188,6 @@ int main(int argc, char **argv) {
 
   while(!glfwWindowShouldClose(window)) {
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    // Set view
-    glm::mat4 view = glm::lookAt(
-        glm::vec3(1.2f, 1.2f, 1.2f),   // Camera location
-        glm::vec3(0.0f, 0.0f, 0.0f),   // Object to center on screen
-        glm::vec3(0.0f, 0.0f, 1.0f)    // "Up" axis
-        );
-    glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
-
-    // Add perspective
-    glm::mat4 proj = glm::perspective(45.0f, 800.0f / 600.0f, 1.0f, 10.0f);
-    glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
 
     // Clear the screen to black
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
