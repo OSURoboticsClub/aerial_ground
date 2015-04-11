@@ -6,7 +6,7 @@ void joystick(int js, protocol::message::offboard_attitude_control_message_t& ms
 
   struct js_event e;
   while (true) {
-    printf("joystick\n");
+    //printf("joystick\n");
     read(js, &e, sizeof(e));
 
     if (e.type == JS_EVENT_AXIS) {
