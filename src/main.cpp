@@ -18,7 +18,7 @@
 #include "protocol/messages.hpp"
 #include "protocol/decoder.hpp"
 #include "protocol/encoder.hpp"
-#include "test.hpp"
+#include "vis.hpp"
 
 #include "reader.hpp"
 #include "writer.hpp"

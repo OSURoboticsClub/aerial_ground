@@ -33,15 +33,15 @@ void writer(boost::asio::serial_port& port, protocol::message::offboard_attitude
   boost::asio::write(port, boost::asio::buffer(buffer.data(), len));
 
   std::uint8_t seq = 0;
-  while(true) {
-    write_msg_mutex.lock();
-    std::uint16_t len = encoder.encode(msg, &buffer);
-    //printf("%f %f %f %f\n", msg.roll, msg.pitch, msg.yaw, msg.throttle);   // DEBUG
-    write_msg_mutex.unlock();
+  //while(true) {
+  //  write_msg_mutex.lock();
+  //  std::uint16_t len = encoder.encode(msg, &buffer);
+  //  //printf("%f %f %f %f\n", msg.roll, msg.pitch, msg.yaw, msg.throttle);   // DEBUG
+  //  write_msg_mutex.unlock();
 
-    boost::asio::write(port, boost::asio::buffer(buffer.data(), len));
+  //  boost::asio::write(port, boost::asio::buffer(buffer.data(), len));
 
-    std::chrono::milliseconds dura(10);
-    std::this_thread::sleep_for(dura);
-  }
+  //  std::chrono::milliseconds dura(10);
+  //  std::this_thread::sleep_for(dura);
+  //}
 }
