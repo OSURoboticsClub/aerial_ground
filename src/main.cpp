@@ -61,17 +61,9 @@ float vertices[] = {
 };
 
 int main(int argc, char **argv) {
-  if(argc < 3) {
-    std::cerr << "Usage: " << argv[0] << " <tty> <jspath>" << std::endl;
+  if(argc < 2) {
+    std::cerr << "Usage: " << argv[0] << " <tty>" << std::endl;
     return EXIT_FAILURE;
-  }
-
-  // Open joystick
-  char *jspath = argv[2];
-  int js_fd = open(jspath, O_RDONLY);
-  if (js_fd == -1) {
-    perror("Error opening joystick");
-    exit(EXIT_FAILURE);
   }
 
   // Set up serial port
@@ -92,7 +84,6 @@ int main(int argc, char **argv) {
 
   std::thread r(reader, std::ref(port));
   std::thread w(writer, std::ref(port), std::ref(write_msg), std::ref(write_msg_mutex));
-  std::thread j(joystick, js_fd, std::ref(write_msg), std::ref(write_msg_mutex));
 
   glfwInit();
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -213,5 +204,4 @@ int main(int argc, char **argv) {
 
   r.join();
   w.join();
-  j.join();
 }
