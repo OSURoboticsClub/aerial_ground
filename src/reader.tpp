@@ -86,7 +86,16 @@ void handle(const protocol::decoded_message_t<buffer_size>& decoded) {
       msgstr << message.motorDC;
       break;
     }
+    case protocol::message::fs_info_message_t::ID: {
+      auto message = reinterpret_cast<const protocol::message::fs_info_message_t&>(decoded.payload);
+      type = "filesystem";
+      msgstr << message.time << " -- ";
+      msgstr << message.fname << " ";
+      msgstr << message.fsize;
+      break;
+    }
     default:
+      msgstr << "ID: " << (int) decoded.id;
       break;
   }
   std::cout << "<" << std::setw(12) << type << ">: " << msgstr.str() << std::endl;
