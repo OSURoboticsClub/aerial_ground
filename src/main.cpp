@@ -62,14 +62,14 @@ float vertices[] = {
 
 int main(int argc, char **argv) {
   if(argc < 2) {
-    std::cerr << "Usage: " << argv[0] << " <tty>" << std::endl;
+    std::cerr << "Usage: " << argv[0] << " <tty> <baud>" << std::endl;
     return EXIT_FAILURE;
   }
 
   // Set up serial port
   boost::asio::io_service io;
   boost::asio::serial_port port(io, argv[1]);
-  port.set_option(boost::asio::serial_port_base::baud_rate(38400));
+  port.set_option(boost::asio::serial_port_base::baud_rate(atoi(argv[2])));
 
   // Set up message
   std::mutex write_msg_mutex;
@@ -93,7 +93,7 @@ int main(int argc, char **argv) {
 
   glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
-  GLFWwindow* window = glfwCreateWindow(800, 600, "OpenGL", nullptr, nullptr); // Windowed
+  GLFWwindow* window = glfwCreateWindow(1200, 900, "OpenGL", nullptr, nullptr); // Windowed
   glfwMakeContextCurrent(window);
 
   glewExperimental = GL_TRUE;
